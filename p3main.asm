@@ -4,9 +4,8 @@ include p3mac.asm
 ; TIPO DE EJECUTABLE
 .model small 
 .stack 100h 
-.data
-; FIN TIPO DE EJECUTABLE
 
+.data ;SEGMENTO DE DATOS
 ; SECCION DE DATOS 
 header db 0ah,0dh,20h,20h, 'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA', 0ah,0dh,20h,20h, 'FACULTAD DE INGENIERIA', 0ah,0dh,20h,20h, 'CIENCIAS Y SISTEMAS', 0ah,0dh,20h,20h, 'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1', 0ah,0dh,20h,20h, 'NOMBRE: DIDIER ALFREDO DOMINGUEZ URIAS', 0ah,0dh,20h,20h, 'CARNET: 201801266', 0ah,0dh,20h,20h, 'SECCION: A', 0ah,0dh, '$'
 options db 0ah,0dh,20h,20h, '1) Iniciar Juego', 0ah,0dh,20h,20h, '2) Cargar Juego', 0ah,0dh,20h,20h, '3) Salir', 0ah,0dh, '$'
@@ -21,15 +20,15 @@ f4 db 0ah,0dh,20h,20h, '4 |', '$'
 f3 db 0ah,0dh,20h,20h, '3 |', '$'
 f2 db 0ah,0dh,20h,20h, '2 |', '$'
 f1 db 0ah,0dh,20h,20h, '1 |', '$'
-em db 20h,20h, '|', '$'
+em db 20h,20h, '|', '$' ; 000b || 111b
 sigln db 0ah,0dh,20h,20h,20h,20h, '-------------------------', '$'
 ab db 0ah,0dh,20h,20h,20h,20h,20h, 'A  B  C  D  E  F  G  H', '$'
-fb db 'FB|', '$'
-fn db 'FN|', '$'
-rb db 'RB|', '$'
-rn db 'RN|', '$'
+fb db 'FB|', '$' ; 001b
+fn db 'FN|', '$' ; 011b
+rb db 'RB|', '$' ; 100b
+rn db 'RN|', '$' ; 010b
 
-headerhtml db 0ah,0dh, '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">','$'
+headerhtml db 0ah,0dh, '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">', '$'
 finheaderhtml db 0ah,0dh, '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"><link rel="stylesheet" href="./assets/css/style.css"><title>201801266</title></head>','$'
 bodyhtml db 0ah, 0dh, '<body class="container"><div class="h-100 align-items-center d-flex justify-content-center"><table><tr><th colspan="9">', '$'
 titulotb db 0ah, 0dh, '<h3>TABLERO ', '$'
@@ -57,14 +56,26 @@ th1 db 0ah, 0dh, '<th>1</th>', '$'
 arrf8 db 000b, 011b, 000b, 011b, 000b, 011b, 000b, 011b
 arrf7 db 011b, 000b, 011b, 000b, 011b, 000b, 011b, 000b
 arrf6 db 000b, 011b, 000b, 011b, 000b, 011b, 000b, 011b
-arrf5 db 000b, 000b, 000b, 000b, 000b, 000b, 000b, 000b
-arrf4 db 000b, 000b, 000b, 000b, 000b, 000b, 000b, 000b
+arrf5 db 111b, 000b, 111b, 000b, 111b, 000b, 111b, 000b
+arrf4 db 000b, 111b, 000b, 111b, 000b, 111b, 000b, 111b
 arrf3 db 001b, 000b, 001b, 000b, 001b, 000b, 001b, 000b
 arrf2 db 000b, 001b, 000b, 001b, 000b, 001b, 000b, 001b
 arrf1 db 001b, 000b, 001b, 000b, 001b, 000b, 001b, 000b
+
+comando db 200 dup('$')
+turno db 48; 000b Blancas | 111b Negras
+turnofb db 0ah,0dh,20h,20h, 'TURNO BLANCAS: ', '$'
+turnofn db 0ah,0dh,20h,20h, 'TURNO NEGRAS: ', '$'
+
+msgOpeningError db 0ah,0dh,20h,20h, 'ERROR: NO SE PUDO ABRIR EL ARCHIVO', '$'
+msgCreationError db 0ah,0dh,20h,20h, 'ERROR: NO SE PUDO CREAR EL ARCHIVO', '$'
+msgWritingError db 0ah,0dh,20h,20h, 'ERROR: NO SE ESCRIBIR EN EL ARCHIVO', '$'
+
+pathFile db 'e', 's', 't', 'a', 'd', 'o', 'T', 'a', 'b', 'l', 'e', 'r', 'o', '.', 'h', 't', 'm', 'l', '$'
+handleFile dw ?
 ; FIN SECCION DE DATOS 
 
-.code ;segmento de código
+.code ;SEGMENTO DE CODIGO
 ; SECCION DE CODIGO
     main proc
         MOV dx, @data
@@ -73,7 +84,10 @@ arrf1 db 001b, 000b, 001b, 000b, 001b, 000b, 001b, 000b
         MENU:
             print header
             print options
+    
+            print getOPT
             getChr
+            print ln
 
             cmp al, 49
 			je INICIAR
@@ -85,8 +99,22 @@ arrf1 db 001b, 000b, 001b, 000b, 001b, 000b, 001b, 000b
             jmp MENU
 
         INICIAR:
-            jmp TABLERO
-            jmp MENU
+            printTablero
+
+            .if turno == 48
+                print turnofb
+                getCadena comando
+
+                MOV [turno], 49
+            .elseif turno == 49
+                print turnofn
+                getCadena comando
+
+                MOV [turno], 48
+            .endif
+
+            ; getChr
+            ; jmp INICIAR
 
         CARGAR:
             jmp MENU
@@ -95,23 +123,21 @@ arrf1 db 001b, 000b, 001b, 000b, 001b, 000b, 001b, 000b
 			MOV ah, 4ch
 			int 21h
 
-        TABLERO:
-            printTB f8, arrf8
-            printTB f7, arrf7
-            printTB f6, arrf6
-            printTB f5, arrf5
-            printTB f4, arrf4
-            printTB f3, arrf3
-            printTB f2, arrf2
-            printTB f1, arrf1
 
-            print sigln
-            print ab
-            print ln
-
-            getChr
-            jmp MENU
-
+        OpeningError: 
+	    	print msgOpeningError
+	    	getChr
+	    	jmp INICIAR
+        
+        CreationError:
+	    	print msgCreationError
+	    	getChr
+	    	jmp INICIAR
+        
+        WritingError:
+	    	print msgWritingError
+	    	getChr
+	    	jmp INICIAR
 
     main endp
 ; FIN SECCION DE CODIGO
