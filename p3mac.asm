@@ -1,11 +1,13 @@
 print macro str
-	MOV ah,09h 
-	MOV dx, offset str 
-	int 21h
+    LOCAL ETIQUETAPRINT
+    ETIQUETAPRINT:
+        MOV ah,09h
+        MOV dx, offset str
+        int 21h
 endm
 
 getChr macro
-    MOV ah,01h
+    mov ah,01h
     int 21h
 endm
 
@@ -19,13 +21,13 @@ getCadena macro buffer
         getChr
         cmp al, 0dh
         je TERM
-        MOV buffer[si], al
+        mov buffer[si], al
         inc si
         jmp COCAT
 
     TERM:
-        MOV al, '$'
-        MOV buffer[si], al
+        mov al, '$'
+        mov buffer[si], al
 
     POP AX
     POP SI
@@ -37,10 +39,10 @@ printFila macro pos, arrg
     print sigln
     print pos
     
-    MOV cx, 8
+    mov cx, 8
     XOR bx, bx
     RecorrerArreglo: 
-		MOV dh, arrg[bx]
+		mov dh, arrg[bx]
         .if (dh == 000b || dh == 111b)
             print em
         .elseif dh == 011b
@@ -71,15 +73,114 @@ printTablero macro
     print ln
 endm
 
-generateReport macro 
-    ; getPathFile pathFile
-    createFile pathFile, handleFile
+printFR macro arrg
+    LOCAL CICLO, CONTINUARC, FINC, EBG, EBN, EFN, EFB, ERN, ERB 
     
+    xor si,si
+	xor cx,cx
+	mov cx, '0'
+
+    CICLO:
+        mov dh, arrg[si]
+
+        cmp dh, 000b
+        je EBN
+        cmp dh, 111b
+        je EBG
+        cmp dh, 001b
+        je EFB
+        cmp dh, 011b
+        je EFN
+        cmp dh, 100b
+        je ERB
+        cmp dh, 010b
+        je ERN
+
+        EBG:
+            writingFile SIZEOF pcbg, pcbg, handleFile
+            jmp CONTINUARC
+        EBN:
+            writingFile SIZEOF pcbn, pcbn, handleFile
+            jmp CONTINUARC
+        EFB:
+            writingFile SIZEOF pcfb, pcfb, handleFile
+            jmp CONTINUARC
+        EFN:
+            writingFile SIZEOF pcfn, pcfn, handleFile
+            jmp CONTINUARC
+        ERB:
+            writingFile SIZEOF pcrb, pcrb, handleFile
+            jmp CONTINUARC
+        ERN:
+            writingFile SIZEOF pcrn, pcrn, handleFile
+            jmp CONTINUARC
+
+        CONTINUARC: 
+            inc si
+		    inc cx
+            cmp cx, '8'
+            je FINC
+            jmp CICLO
+    FINC:
+endm
+
+printTBR macro
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th8, th8, handleFile
+    printFR arrf8
+    writingFile SIZEOF fntr, fntr, handleFile
+
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th7, th7, handleFile
+    printFR arrf7
+    writingFile SIZEOF fntr, fntr, handleFile
+
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th6, th6, handleFile
+    printFR arrf6
+    writingFile SIZEOF fntr, fntr, handleFile
+    
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th5, th5, handleFile
+    printFR arrf5
+    writingFile SIZEOF fntr, fntr, handleFile
+
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th4, th4, handleFile
+    printFR arrf4
+    writingFile SIZEOF fntr, fntr, handleFile
+
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th3, th3, handleFile
+    printFR arrf3
+    writingFile SIZEOF fntr, fntr, handleFile
+    
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th2, th2, handleFile
+    printFR arrf2
+    writingFile SIZEOF fntr, fntr, handleFile
+    
+    writingFile SIZEOF sttr, sttr, handleFile
+    writingFile SIZEOF th1, th1, handleFile
+    printFR arrf1
+    writingFile SIZEOF fntr, fntr, handleFile
+endm
+
+generateReport macro 
+    createFile pathFile, handleFile
     openFile pathFile, handleFile
+
     writingFile SIZEOF headerhtml, headerhtml, handleFile
+    writingFile SIZEOF finheaderhtml, finheaderhtml, handleFile
+    writingFile SIZEOF bodyhtml, bodyhtml, handleFile
+    writingFile SIZEOF titulotb, titulotb, handleFile
+    writingFile SIZEOF fintitulotb, fintitulotb, handleFile
+    printTBR
+    writingFile SIZEOF fintablehtml, fintablehtml, handleFile
+    writingFile SIZEOF scriptshtml, scriptshtml, handleFile
+    writingFile SIZEOF fnbodyhtml, fnbodyhtml, handleFile
 
     closeFile handleFile
-    ; jmp INICIAR
 endm
 
 getPathFile macro buffer
@@ -90,46 +191,48 @@ getPathFile macro buffer
         getChr
         cmp al, 0dh
         je TERMINAR
-        MOV buffer[si], al
+        mov buffer[si], al
         inc si
         jmp CONCATENAR
     TERMINAR:
-        MOV buffer[si], 00h
+        mov buffer[si], 00h
 endm
 
 createFile macro buffer, handle
-    MOV ah, 3ch
-    MOV cx, 00h
-
+    mov ah, 3ch
+    mov cx, 00h
     lea dx, buffer
-
     int 21h
-    MOV handle, ax
+    mov handle, ax
     jc CreationError
 endm
 
 openFile macro path, handle
-    MOV ah, 3dh
-    MOV al, 10b
-
+    mov ah, 3dh
+    mov al, 10b
     lea dx, path
-    
     int 21h
-    MOV handle, ax
+    mov handle, ax
     jc OpeningError
 endm
 
 writingFile macro numbytes, buffer, handle
-	MOV ah, 40h
-	MOV bx, handle
-	MOV cx, numbytes
+	PUSH cx
+	PUSH dx
+
+	mov ah, 40h
+	mov bx, handle
+	mov cx, numbytes
 	lea dx, buffer
 	int 21h
 	jc WritingError
+
+	POP dx
+	POP cx
 endm
 
 closeFile macro handle
-    MOV ah, 3eh
-    MOV handle, bx
+    mov ah, 3eh
+    mov handle, bx
     int 21h
 endm
