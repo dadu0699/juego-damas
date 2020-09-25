@@ -11,7 +11,7 @@ getChr macro
     int 21h
 endm
 
-getCadena macro buffer
+getString macro buffer
     LOCAL COCAT, TERM
     PUSH SI
     PUSH AX
@@ -32,6 +32,10 @@ getCadena macro buffer
     POP AX
     POP SI
 endm
+
+parseString macro buffer
+endm
+
 
 printFila macro pos, arrg
     LOCAL RecorrerArreglo
@@ -76,10 +80,7 @@ endm
 printFR macro arrg
     LOCAL CICLO, CONTINUARC, FINC, EBG, EBN, EFN, EFB, ERN, ERB 
     
-    xor si,si
-	xor cx,cx
-	mov cx, '0'
-
+    xor si, si
     CICLO:
         mov dh, arrg[si]
 
@@ -117,8 +118,7 @@ printFR macro arrg
 
         CONTINUARC: 
             inc si
-		    inc cx
-            cmp cx, '8'
+            cmp si, 8
             je FINC
             jmp CICLO
     FINC:
@@ -183,6 +183,8 @@ generateReport macro
     closeFile handleFile
 endm
 
+
+
 getPathFile macro buffer
     LOCAL CONCATENAR, TERMINAR
     
@@ -234,5 +236,17 @@ endm
 closeFile macro handle
     mov ah, 3eh
     mov handle, bx
+    int 21h
+endm
+
+
+
+getDate macro
+    mov ah,2ah
+    int 21h
+endm
+
+getTime macro
+    mov ah,2ch
     int 21h
 endm

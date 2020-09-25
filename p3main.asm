@@ -33,7 +33,7 @@ finheaderhtml db '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.co
 bodyhtml db '<body class="container"><div class="h-100 align-items-center d-flex justify-content-center"><table><tr><th colspan="9">'
 titulotb db '<h3>TABLERO '
 fintitulotb db '</h3></th></tr>'
-fintablehtml db '<tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th></tr></table></div>'
+fintablehtml db '<tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th></tr></table></div>'
 scriptshtml db '<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script><script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>'
 fnbodyhtml db '<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body></html>'
 sttr db '<tr>'
@@ -81,8 +81,6 @@ handleFile dw ?
         mov dx, @data
         mov ds, dx
 
-        generateReport
-
         MENU:
             print header
             print options
@@ -105,12 +103,12 @@ handleFile dw ?
 
             .if turno == 48
                 print turnofb
-                getCadena comando
+                getString comando
 
                 mov [turno], 49
             .elseif turno == 49
                 print turnofn
-                getCadena comando
+                getString comando
 
                 mov [turno], 48
             .endif
@@ -140,6 +138,11 @@ handleFile dw ?
 	    	print msgWritingError
 	    	getChr
 	    	jmp INICIAR
+
+        AccionesBlanco: 
+            generateReport
+        AccionesNegro:
+            generateReport
 
     main endp
 ; FIN SECCION DE CODIGO
