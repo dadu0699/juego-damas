@@ -1,8 +1,8 @@
 print macro str
     LOCAL ETIQUETAPRINT
     ETIQUETAPRINT:
-        MOV ah,09h
-        MOV dx, offset str
+        mov ah,09h
+        mov dx, offset str
         int 21h
 endm
 
@@ -33,7 +33,67 @@ getString macro buffer
     POP SI
 endm
 
-parseString macro buffer
+parseString macro ref, buffer
+    LOCAL RestartSplit, Split, ConcatParse, FinParse
+    PUSH si
+    PUSH cx
+    PUSH ax
+
+	xor si, si
+	xor cx, cx
+	xor ax, ax
+	mov ax, ref
+	mov dl, 0ah
+	jmp Split
+
+	RestartSplit:
+		xor ah,ah
+
+	Split:
+		div dl
+		inc cx
+		push ax
+		cmp al, 00h
+		je ConcatParse
+		jmp RestartSplit
+
+	ConcatParse:
+		pop ax
+		add ah, 30h
+		mov buffer[si], ah
+		inc si
+		loop ConcatParse
+		mov ah,24h
+		mov buffer[si], ah
+		inc si
+
+	FinParse:
+    
+    POP ax
+    POP cx
+    POP si
+endm
+
+convertAscii macro numero
+	LOCAL convI, finA
+	xor ax, ax
+	xor bx, bx
+	xor cx, cx
+	mov bx, 10
+	xor si, si
+
+	convI:
+		mov cl, numero[si] 
+		cmp cl, 48
+		jl finA
+		cmp cl, 57
+		jg finA
+		inc si
+		sub cl, 48
+		mul bx
+		add ax, cx
+		jmp convI
+	finA:
 endm
 
 
@@ -167,6 +227,10 @@ printTBR macro
 endm
 
 generateReport macro 
+    getDate
+    getTime
+    ; currentTimestamp
+
     createFile pathFile, handleFile
     openFile pathFile, handleFile
 
@@ -174,6 +238,9 @@ generateReport macro
     writingFile SIZEOF finheaderhtml, finheaderhtml, handleFile
     writingFile SIZEOF bodyhtml, bodyhtml, handleFile
     writingFile SIZEOF titulotb, titulotb, handleFile
+    
+    writingFile SIZEOF fechaHora, fechaHora, handleFile
+
     writingFile SIZEOF fintitulotb, fintitulotb, handleFile
     printTBR
     writingFile SIZEOF fintablehtml, fintablehtml, handleFile
@@ -244,9 +311,56 @@ endm
 getDate macro
     mov ah,2ah
     int 21h
+    
+    mov al, dl
+    call conv
+    mov fechaHora[0], ah
+    mov fechaHora[1], al
+
+    mov al, dh
+    call conv
+    mov fechaHora[3], ah
+    mov fechaHora[4], al
+
 endm
 
 getTime macro
     mov ah,2ch
     int 21h
+
+    mov al, ch
+    call conv
+    mov fechaHora[11], ah
+    mov fechaHora[12], al
+
+    mov al, cl
+    call conv
+    mov fechaHora[14], ah
+    mov fechaHora[15], al
+endm
+
+currentTimestamp macro
+    xor ax, ax
+    xor bx, bx
+    getDate
+    mov bx, cx
+    parseString bx, anio
+    
+    xor bx, bx
+    getDate
+    mov bl, dh
+    parseString bx, mes
+    
+    getDate
+    mov bl, dl
+    parseString bx, dia
+    
+    xor bx, bx
+    getTime
+    mov bl, ch
+    parseString bx, hora
+    
+    getTime
+    mov bl, cl
+    parseString bx, minuto
 endm

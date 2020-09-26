@@ -71,6 +71,16 @@ msgOpeningError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ABRIR EL ARCHIVO', '$'
 msgCreationError db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO CREAR EL ARCHIVO', '$'
 msgWritingError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ESCRIBIR EN EL ARCHIVO', '$'
 
+dia db ' '
+mes db ' '
+anio db ' '
+hora db ' '
+minuto db ' '
+slash db '/'
+space db ' '
+twoP db ':'
+fechaHora db 'dd/mm/2020 hh:mm'
+
 pathFile db 'estadoTablero.html', 00h
 handleFile dw ?
 ; FIN SECCION DE DATOS 
@@ -80,6 +90,7 @@ handleFile dw ?
     main proc
         mov dx, @data
         mov ds, dx
+generateReport
 
         MENU:
             print header
@@ -146,4 +157,15 @@ handleFile dw ?
 
     main endp
 ; FIN SECCION DE CODIGO
+
+
+
+
+
+
+    conv proc 
+        AAM
+        ADD ax, 3030h
+        ret
+    conv endp
 end
