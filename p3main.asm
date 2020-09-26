@@ -73,6 +73,7 @@ turnofn db 0ah,0dh,20h,20h, 'TURNO NEGRAS: ', '$'
 msgOpeningError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ABRIR EL ARCHIVO', '$'
 msgCreationError db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO CREAR EL ARCHIVO', '$'
 msgWritingError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ESCRIBIR EN EL ARCHIVO', '$'
+msgDeleteError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ELIMINAR EL ARCHIVO', '$'
 
 dia db ' '
 mes db ' '
@@ -101,6 +102,8 @@ handleFile dw ?
             print getOPT
             getChr
             print ln
+
+            mov [turno], 48
 
             cmp al, 49
 			je INICIAR
@@ -143,6 +146,11 @@ handleFile dw ?
 	    	getChr
 	    	jmp INICIAR
 
+        DeleteError:
+	    	print msgDeleteError
+	    	getChr
+	    	jmp INICIAR
+
         AccionesBlanco: 
             print turnofb
             getString comando
@@ -159,7 +167,6 @@ handleFile dw ?
             equalsString comando, comandoShow, Reporte
             equalsString comando, comandoSave, SALIR
             equalsString comando, comandoExit, MENU
-            
 
             mov [turno], 48
             jmp INICIAR

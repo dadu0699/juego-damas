@@ -13,8 +13,6 @@ endm
 
 getString macro buffer
     LOCAL COCAT, TERM
-    PUSH SI
-    PUSH AX
 
     xor si,si
     COCAT:
@@ -29,8 +27,6 @@ getString macro buffer
         mov al, '$'
         mov buffer[si], al
 
-    POP AX
-    POP SI
 endm
 
 parseString macro ref, buffer
@@ -72,6 +68,17 @@ parseString macro ref, buffer
     POP ax
     POP cx
     POP si
+endm
+
+equalsString macro buffer, command, etq
+    mov ax, ds
+    mov es, ax
+    mov cx, 5
+    
+    lea si, buffer
+    lea di, command
+    repe cmpsb
+    je etq
 endm
 
 convertAscii macro numero
@@ -231,6 +238,7 @@ generateReport macro
     getTime
     ; currentTimestamp
 
+    deleteFile pathFile
     createFile pathFile, handleFile
     openFile pathFile, handleFile
 
@@ -306,6 +314,11 @@ closeFile macro handle
     int 21h
 endm
 
+deleteFile macro buffer
+    mov ah, 41h
+    lea dx, buffer
+    jc DeleteError
+endm
 
 
 getDate macro
@@ -363,15 +376,4 @@ currentTimestamp macro
     getTime
     mov bl, cl
     parseString bx, minuto
-endm
-
-equalsString macro buffer, command, etq
-    mov ax, ds
-    mov es, ax
-    mov cx, 5
-    
-    lea si, buffer
-    lea di, command
-    repe cmpsb
-    je etq
 endm
