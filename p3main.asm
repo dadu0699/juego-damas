@@ -62,7 +62,10 @@ arrf3 db 001b, 000b, 001b, 000b, 001b, 000b, 001b, 000b
 arrf2 db 000b, 001b, 000b, 001b, 000b, 001b, 000b, 001b
 arrf1 db 001b, 000b, 001b, 000b, 001b, 000b, 001b, 000b
 
-comando db 200 dup('$')
+comando db 5 dup('$')
+comandoShow db 'SHOW', '$'
+comandoExit db 'EXIT', '$'
+comandoSave db 'SAVE', '$'
 turno db 48; 000b Blancas | 111b Negras
 turnofb db 0ah,0dh,20h,20h, 'TURNO BLANCAS: ', '$'
 turnofn db 0ah,0dh,20h,20h, 'TURNO NEGRAS: ', '$'
@@ -90,7 +93,6 @@ handleFile dw ?
     main proc
         mov dx, @data
         mov ds, dx
-generateReport
 
         MENU:
             print header
@@ -113,19 +115,10 @@ generateReport
             printTablero
 
             .if turno == 48
-                print turnofb
-                getString comando
-
-                mov [turno], 49
+                jmp AccionesBlanco
             .elseif turno == 49
-                print turnofn
-                getString comando
-
-                mov [turno], 48
+                jmp AccionesNegro
             .endif
-
-            ; getChr
-            ; jmp INICIAR
 
         CARGAR:
             jmp MENU
@@ -151,9 +144,29 @@ generateReport
 	    	jmp INICIAR
 
         AccionesBlanco: 
-            generateReport
+            print turnofb
+            getString comando
+            equalsString comando, comandoShow, Reporte
+            equalsString comando, comandoSave, SALIR
+            equalsString comando, comandoExit, MENU
+
+            mov [turno], 49
+            jmp INICIAR
+
         AccionesNegro:
+            print turnofn
+            getString comando
+            equalsString comando, comandoShow, Reporte
+            equalsString comando, comandoSave, SALIR
+            equalsString comando, comandoExit, MENU
+            
+
+            mov [turno], 48
+            jmp INICIAR
+
+        Reporte:
             generateReport
+            jmp INICIAR
 
     main endp
 ; FIN SECCION DE CODIGO

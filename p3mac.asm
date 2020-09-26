@@ -364,3 +364,14 @@ currentTimestamp macro
     mov bl, cl
     parseString bx, minuto
 endm
+
+equalsString macro buffer, command, etq
+    mov ax, ds
+    mov es, ax
+    mov cx, 5
+    
+    lea si, buffer
+    lea di, command
+    repe cmpsb
+    je etq
+endm
