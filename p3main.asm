@@ -69,11 +69,18 @@ comandoSave db 'SAVE', '$'
 turno db 48; 000b Blancas | 111b Negras
 turnofb db 0ah,0dh,20h,20h, 'TURNO BLANCAS: ', '$'
 turnofn db 0ah,0dh,20h,20h, 'TURNO NEGRAS: ', '$'
+xInicial db 0 
+xFinal db 0
+yInicial db 0
+yFinal db 0
 
 msgOpeningError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ABRIR EL ARCHIVO', '$'
 msgCreationError db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO CREAR EL ARCHIVO', '$'
 msgWritingError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ESCRIBIR EN EL ARCHIVO', '$'
-msgDeleteError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ELIMINAR EL ARCHIVO', '$'
+msgDeleteError   db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ELIMINAR EL ARCHIVO', '$'
+msgCommandError  db 0ah,0dh,20h,20h,  'ERROR: NO SE PUDO ECONTRAR EL COMANDO O CASILLA', '$'
+msgcasillaError  db 0ah,0dh,20h,20h,  'ERROR: CASILLA VACIA', '$'
+msgcasillaError2  db 0ah,0dh,20h,20h,  'ERROR: NO PUEDES MOVER FICHAS DEL OTRO COLOR', '$'
 
 dia db ' '
 mes db ' '
@@ -151,12 +158,18 @@ handleFile dw ?
 	    	getChr
 	    	jmp INICIAR
 
+        CommandError:
+	    	print msgCommandError
+	    	getChr
+	    	jmp INICIAR
+
         AccionesBlanco: 
             print turnofb
             getString comando
             equalsString comando, comandoShow, Reporte
             equalsString comando, comandoSave, SALIR
             equalsString comando, comandoExit, MENU
+            movimientos
 
             mov [turno], 49
             jmp INICIAR
@@ -167,6 +180,7 @@ handleFile dw ?
             equalsString comando, comandoShow, Reporte
             equalsString comando, comandoSave, SALIR
             equalsString comando, comandoExit, MENU
+            movimientos
 
             mov [turno], 48
             jmp INICIAR

@@ -104,6 +104,7 @@ convertAscii macro numero
 endm
 
 
+
 printFila macro pos, arrg
     LOCAL RecorrerArreglo
 
@@ -113,7 +114,7 @@ printFila macro pos, arrg
     mov cx, 8
     XOR bx, bx
     RecorrerArreglo: 
-		mov dh, arrg[bx]
+	    mov dh, arrg[bx]
         .if (dh == 000b || dh == 111b)
             print em
         .elseif dh == 011b
@@ -376,4 +377,373 @@ currentTimestamp macro
     getTime
     mov bl, cl
     parseString bx, minuto
+endm
+
+
+
+movimientos macro
+    LOCAL pA,pB,pC,pD,pE,pF,pG,pH, fy,p1,p2,p3,p4,p5,p6,p7,p8, salidaP, tbl, tne
+    LOCAL inicioF2, pA2,pB2,pC2,pD2,pE2,pF2,pG2,pH2, fy2,p12,p22,p32,p42,p52,p62,p72,p82, salidaP2, tbl2, tne2
+    LOCAL ffin
+    
+    cmp comando[0], 'A'
+    je pA
+    cmp comando[0], 'B'
+    je pB
+    cmp comando[0], 'C'
+    je pC
+    cmp comando[0], 'D'
+    je pD
+    cmp comando[0], 'E'
+    je pE
+    cmp comando[0], 'F'
+    je pF
+    cmp comando[0], 'G'
+    je pG
+    cmp comando[0], 'H'
+    je pH
+    jmp CommandError
+    pA:
+        mov xInicial, 0
+        jmp fy
+    pB:
+        mov xInicial, 1
+        jmp fy
+    pC:
+        mov xInicial, 2
+        jmp fy
+    pD:
+        mov xInicial, 3
+        jmp fy
+    pE:
+        mov xInicial, 4
+        jmp fy
+    pF:
+        mov xInicial, 5
+        jmp fy
+    pG:
+        mov xInicial, 6
+        jmp fy
+    pH:
+        mov xInicial, 7
+        jmp fy
+
+
+    fy:
+    xor bx, bx
+    mov bl, xInicial
+
+    cmp comando[1], '1'
+    je p1
+    cmp comando[1], '2'
+    je p2
+    cmp comando[1], '3'
+    je p3
+    cmp comando[1], '4'
+    je p4
+    cmp comando[1], '5'
+    je p5
+    cmp comando[1], '6'
+    je p6
+    cmp comando[1], '7'
+    je p7
+    cmp comando[1], '8'
+    je p8
+    jmp CommandError
+    p1:
+        mov yInicial, 0
+    	mov dh, arrf1[bx]
+        jmp salidaP
+    p2:
+        mov yInicial, 1
+    	mov dh, arrf2[bx]
+        jmp salidaP
+    p3:
+        mov yInicial, 2
+    	mov dh, arrf3[bx]
+        jmp salidaP
+    p4:
+        mov yInicial, 3
+    	mov dh, arrf4[bx]
+        jmp salidaP
+    p5:
+        mov yInicial, 4
+    	mov dh, arrf5[bx]
+        jmp salidaP
+    p6:
+        mov yInicial, 5
+    	mov dh, arrf6[bx]
+        jmp salidaP
+    p7:
+        mov yInicial, 6
+    	mov dh, arrf7[bx]
+        jmp salidaP
+    p8:
+        mov yInicial, 7
+    	mov dh, arrf8[bx]
+        jmp salidaP
+
+    salidaP: 
+        xor ax, ax
+        mov ah, dh
+        .if turno == 48
+            jmp tbl
+        .elseif turno == 49
+            jmp tne
+        .endif
+
+    tbl:
+        .if (dh == 000b || dh == 111b)
+            print msgcasillaError
+            jmp INICIAR
+        .elseif dh == 011b
+            print msgcasillaError2
+            jmp INICIAR
+        .elseif dh == 010b
+            print msgcasillaError2
+            jmp INICIAR
+        .endif
+        jmp inicioF2
+    tne:
+        .if (dh == 000b || dh == 111b)
+            print msgcasillaError
+            jmp INICIAR
+        .elseif dh == 001b
+            print msgcasillaError2
+            jmp INICIAR
+        .elseif dh == 100b
+            print msgcasillaError2
+            jmp INICIAR
+        .endif
+        jmp inicioF2
+
+    inicioF2:
+    cmp comando[3], 'A'
+    je pA2
+    cmp comando[3], 'B'
+    je pB2
+    cmp comando[3], 'C'
+    je pC2
+    cmp comando[3], 'D'
+    je pD2
+    cmp comando[3], 'E'
+    je pE2
+    cmp comando[3], 'F'
+    je pF2
+    cmp comando[3], 'G'
+    je pG2
+    cmp comando[3], 'H'
+    je pH2
+    jmp CommandError
+    pA2:
+        mov xFinal, 0
+        jmp fy2
+    pB2:
+        mov xFinal, 1
+        jmp fy2
+    pC2:
+        mov xFinal, 2
+        jmp fy2
+    pD2:
+        mov xFinal, 3
+        jmp fy2
+    pE2:
+        mov xFinal, 4
+        jmp fy2
+    pF2:
+        mov xFinal, 5
+        jmp fy2
+    pG2:
+        mov xFinal, 6
+        jmp fy2
+    pH2:
+        mov xFinal, 7
+        jmp fy2
+
+
+    fy2:
+    xor bx, bx
+    mov bl, xFinal
+
+    cmp comando[4], '1'
+    je p12
+    cmp comando[4], '2'
+    je p22
+    cmp comando[4], '3'
+    je p32
+    cmp comando[4], '4'
+    je p42
+    cmp comando[4], '5'
+    je p52
+    cmp comando[4], '6'
+    je p62
+    cmp comando[4], '7'
+    je p72
+    cmp comando[4], '8'
+    je p82
+    jmp CommandError
+    p12:
+        mov yFinal, 0
+    	mov dh, arrf1[bx]
+        jmp salidaP2
+    p22:
+        mov yFinal, 1
+    	mov dh, arrf2[bx]
+        jmp salidaP2
+    p32:
+        mov yFinal, 2
+    	mov dh, arrf3[bx]
+        jmp salidaP2
+    p42:
+        mov yFinal, 3
+    	mov dh, arrf4[bx]
+        jmp salidaP2
+    p52:
+        mov yFinal, 4
+    	mov dh, arrf5[bx]
+        jmp salidaP2
+    p62:
+        mov yFinal, 5
+    	mov dh, arrf6[bx]
+        jmp salidaP2
+    p72:
+        mov yFinal, 6
+    	mov dh, arrf7[bx]
+        jmp salidaP2
+    p82:
+        mov yFinal, 7
+    	mov dh, arrf8[bx]
+        jmp salidaP2
+
+    salidaP2: 
+        xor ax, ax
+        mov ah, dh
+        .if turno == 48
+            jmp tbl2
+        .elseif turno == 49
+            jmp tne2
+        .endif
+
+
+    tbl2:
+        .if (dh == 000b || dh == 111b)
+            hacerCero comando[0], comando[1], 111b 
+            hacerCero comando[3], comando[4], 001b 
+        .elseif dh == 011b
+            print msgcasillaError2
+            jmp INICIAR
+        .elseif dh == 010b
+            print msgcasillaError2
+            jmp INICIAR
+        .endif
+        jmp ffin
+    tne2:
+        .if (dh == 000b || dh == 111b)
+            hacerCero comando[0], comando[1], 111b 
+            hacerCero comando[3], comando[4], 011b
+        .elseif dh == 001b
+            print msgcasillaError2
+            jmp INICIAR
+        .elseif dh == 100b
+            print msgcasillaError2
+            jmp INICIAR
+        .endif
+        jmp ffin
+    ffin:
+        generateReport
+endm
+
+hacerCero macro letraC, numeroC, valorC
+    LOCAL pA0,pB0,pC0,pD0,pE0,pF0,pG0,pH0, fy0,p10,p20,p30,p40,p50,p60,p70,p80, salidaP0, tbl0, tne0
+
+    cmp letraC, 'A'
+    je pA0
+    cmp letraC, 'B'
+    je pB0
+    cmp letraC, 'C'
+    je pC0
+    cmp letraC, 'D'
+    je pD0
+    cmp letraC, 'E'
+    je pE0
+    cmp letraC, 'F'
+    je pF0
+    cmp letraC, 'G'
+    je pG0
+    cmp letraC, 'H'
+    je pH0
+    jmp CommandError
+    pA0:
+        mov xInicial, 0
+        jmp fy0
+    pB0:
+        mov xInicial, 1
+        jmp fy0
+    pC0:
+        mov xInicial, 2
+        jmp fy0
+    pD0:
+        mov xInicial, 3
+        jmp fy0
+    pE0:
+        mov xInicial, 4
+        jmp fy0
+    pF0:
+        mov xInicial, 5
+        jmp fy0
+    pG0:
+        mov xInicial, 6
+        jmp fy0
+    pH0:
+        mov xInicial, 7
+        jmp fy0
+
+
+    fy0:
+    xor bx, bx
+    mov bl, xInicial
+
+    cmp numeroC, '1'
+    je p10
+    cmp numeroC, '2'
+    je p20
+    cmp numeroC, '3'
+    je p30
+    cmp numeroC, '4'
+    je p40
+    cmp numeroC, '5'
+    je p50
+    cmp numeroC, '6'
+    je p60
+    cmp numeroC, '7'
+    je p70
+    cmp numeroC, '8'
+    je p80
+    jmp CommandError
+    p10:
+    	mov arrf1[bx], valorC
+        jmp salidaP0
+    p20:
+    	mov arrf2[bx], valorC
+        jmp salidaP0
+    p30:
+    	mov arrf3[bx], valorC
+        jmp salidaP0
+    p40:
+    	mov arrf4[bx], valorC
+        jmp salidaP0
+    p50:
+    	mov arrf5[bx], valorC
+        jmp salidaP0
+    p60:
+    	mov arrf6[bx], valorC
+        jmp salidaP0
+    p70:
+    	mov arrf7[bx], valorC
+        jmp salidaP0
+    p80:
+    	mov arrf8[bx], valorC
+        jmp salidaP0
+
+    salidaP0: 
 endm
